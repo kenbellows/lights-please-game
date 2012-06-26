@@ -1,0 +1,45 @@
+Working Title (probably to be changed): Lights, Please.
+
+In a world of swinging lamps and flickering flourescents, there are demons hiding in the dark.
+
+Specifics:
+
+A terrified character running through a world while trying his best to avoid the dark and 
+determine three things: how to get the lights back on, what is chasing him through the dark,
+and who caused all this chaos in the first place.
+
+There is something hiding, chasing him, hiding just outside the light. Whenever he leaves the
+lit areas, he is attacked, screams, and is killed.
+(Cut scene with flickering lights showing his dead body?)
+
+Whenever he runs into the light for a minute, there's a short time during which he can return 
+to the light. When he does, he drags a sillouette of a gruesome somthing back in with him. 
+Additionally, whenever the character stands at the edge of the light, gruesome things can be seen 
+trying to grab him. Perhaps different things at different times, perhaps not.
+
+In the end, the character finds out that it's a future him who has been transformed and mutilated
+and has been through huge suffering. He has decided that it would have been better to die before 
+the inevitable suffering, and has thus been trying to kill his younger self early on.
+
+When the lights are on, the character can only see in the lit areas. but when lights go out, the
+character can gradually see more and more in the dark as his eyes become adjusted to the dim area.
+During these times, when the chasing entity shows up it should be terrifyingly large and attack
+quickly, becoming braver as time goes on.
+
+Similarly, when our hero steps into the light after adjusting to the dark, everything should become
+flushed out for a brief period, becoming clearer again over time.
+
+Additionally, when in the dark, areas should become clear only in the area where the character is
+currently looking. This would suggest a control scheme of mouse for head movement, WASD-Space for
+character movement.
+
+
+Technical Ideas:
+
+When rendering the screen, perform operations in this order:
+1) Update light sources (move the swinging lamps one step, flicker the lights by however much, etc.)
+2) Calculate the outlines (e.g. tris, quads) of the sections where these sources provide light.
+3) Render the background in sections. For each section:
+    a) Determine whether its rect intersects with any of the light sources.
+    b) If it does, render the parts within the light in full color, then fade to black at the edges.
+    c) If it does not, render fully black.

@@ -1,10 +1,13 @@
 import pygame
+import background
+import terrain
 
 class Scene:
-    def __init__(self, bg=None, objects=None, bg_type=None,):
-        self.bg_type = bg_type
-        self.bg = bg
+    def __init__(self, bg=None, objects=None, bg_type=None):
+        self.bg_type = bg_type if bg_type else 'SOLID'
+        self.bg = bg if bg and bg_type else background.Background(color=(0,0,0))
         self.objects = objects
+        
         
     def drawable(self):
         

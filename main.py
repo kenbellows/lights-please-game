@@ -7,11 +7,15 @@ import gamelib.sceneobject
 import gamelib.charactersprite
 import gamelib.platform
 import lightspleasegame
+import gamelib.twolayerbackground
 from gamelib.action import Action
 
 WIDTH = 900
 HEIGHT = 600
-BGFILE = 'grassybg.bmp'
+STATIC_BGFILE = 'static_sky.bmp'
+DYNAMIC_FGFILE = 'grassy_fg.bmp'
+STATICX = 3200 - WIDTH
+STATICY = 0
 BGSTARTX = 0
 BGSTARTY = 200
 FLOORHEIGHT = 700
@@ -32,8 +36,11 @@ def main():
     }
     
     bg_info = {
-            'TYPE'        : 'IMAGE',
-            'FILENAME'    : BGFILE,
+            'TYPE'        : 'TWO_LAYER_IMAGE',
+            'BG_FILENAME' : STATIC_BGFILE,
+            'STATICX'     : STATICX,
+            'STATICY'     : STATICY,
+            'FG_FILENAME' : DYNAMIC_FGFILE,
             'STARTX'      : BGSTARTX,
             'STARTY'      : BGSTARTY,
             'WIDTH'       : WIDTH,

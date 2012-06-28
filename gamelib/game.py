@@ -1,6 +1,7 @@
 import pygame
 import scene
 import background
+import twolayerbackground
 
 class Game:
     def __init__(self, (width, height), bg_info, objects=[], functions={}):
@@ -16,6 +17,8 @@ class Game:
             self.bg = background.Background(None, (0,0, bg_info['WIDTH'], bg_info['HEIGHT']), bg_info['COLOR'], bg_info['FLOORHEIGHT'])
         elif bg_info['TYPE'] == 'IMAGE':
             self.bg = background.Background(bg_info['FILENAME'], (bg_info['STARTX'],bg_info['STARTY'],bg_info['WIDTH'],bg_info['HEIGHT']), floor_height=bg_info['FLOORHEIGHT'])
+        elif bg_info['TYPE'] == 'TWO_LAYER_IMAGE':
+            self.bg = twolayerbackground.TwoLayerBackground(staticbg=bg_info['BG_FILENAME'], dynamicfg=bg_info['FG_FILENAME'], rect=(bg_info['STARTX'],bg_info['STARTY'],bg_info['WIDTH'],bg_info['HEIGHT']), floor_height=bg_info['FLOORHEIGHT'], static_pos=(bg_info['STATICX'], bg_info['STATICY']))
         self.objects = []
         
         for item in objects:

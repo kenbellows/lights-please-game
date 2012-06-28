@@ -3,7 +3,8 @@ import sceneobject
 import terrain
 
 class Background(sceneobject.SceneObject):
-    def __init__(self, filename=None, (x, y, width, height)=(0,0,512,256), color=None, floor_height=None, terrain_map=None):
+    def __init__(self, filename=None, rect=(0,0,512,256), color=None, floor_height=None, terrain_map=None):
+        (x, y, width, height) = rect
         so_args = {'pos':(x,y), 'filename':filename}
         sceneobject.SceneObject.__init__(self,so_args)
         self.color = color

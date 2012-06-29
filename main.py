@@ -64,7 +64,7 @@ def main():
             'actions'     : actions, 
             'width'       : CHRWIDTH,
             'height'      : CHRHEIGHT,
-            'pos'         : TERRAIN_MAP.groundtest((BGSTARTX+30,FLOOR_HEIGHT))[1]-CHRHEIGHT,
+            'pos'         : (BGSTARTX+30,TERRAIN_MAP.groundtest((BGSTARTX+30,FLOORHEIGHT))[1][1]-CHRHEIGHT),
             'jumpheight'  : CHRJUMPHEIGHT,
             'terrain'     : TERRAIN_MAP,
         },

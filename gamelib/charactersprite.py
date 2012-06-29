@@ -2,6 +2,7 @@ import pygame
 import action
 import sceneobject
 
+
 class CharacterSprite(sceneobject.SceneObject):
     """
         This class represents any sprite directly controlled by user keyboard or mouse input.
@@ -14,36 +15,40 @@ class CharacterSprite(sceneobject.SceneObject):
             Up              Jump up
     """
     def __init__(self, args):
-        so_args = {'pos':args['STARTPOS'], 'filename':args['FILENAME']}
+        so_args = {'pos':args['pos'], 'filename':args['filename'], 'terrain':args['terrain']}
         sceneobject.SceneObject.__init__(self,so_args)
         self.spritesheet = self.image
         #self.spritesheet_ids = spritesheet_ids
-        self.jump_height = args['JUMPHEIGHT']
-        self.sprite_width = args['WIDTH']
-        self.sprite_height = args['HEIGHT']
+        self.jump_height = args['jumpheight']
+        self.sprite_width = args['width']
+        self.sprite_height = args['height']
         self.rect = self.image.get_rect()
         self.sprite_rect = pygame.rect.Rect(self.x, self.y, self.sprite_width, self.sprite_height)
-        self.actions = args['ACTIONS']
+        self.actions = args['actions']
         self.walk_step = self.sprite_width*0.0125
         self.fast_factor = 3
         self.fall_step = self.sprite_height*0.0125
+         
         self.state = {
-                        'steps'         : 0,
-                        'fallcount'     : 0,
-                        'action'        : 'STAND',
-                        'last'          : 'STAND',
-                        'lastisdone'    : False,
-                        'left'          : False,
-                        'running'       : False,
-                        'jumping'       : False,
-                        'falling'       : False,
-                        'fallingfast'   : False,
-                        'landing'       : False,
-                        'walking'       : False,
-                        'rdown'         : False,
-                        'ldown'         : False,
+                        'steps'          : 0,
+                        'fallcount'      : 0,
+                        'action'         : 'STAND',
+                        'last'           : 'STAND',
+                        'lastisdone'     : False,
+                        'left'           : False,
+                        'running'        : False,
+                        'jumping'        : False,
+                        'falling'        : False,
+                        'fallingfast'    : False,
+                        'landing'        : False,
+                        'walking'        : False,
+                        'rdown'          : False,
+                        'ldown'          : False,
+                        'floorheightnow' : self.terrain.groundtest((0,0))[1][1],
                      }
-    
+        self.last = None
+
+
     def left(self):
         self.state['left'] = True
     
@@ -54,6 +59,7 @@ class CharacterSprite(sceneobject.SceneObject):
         self.state['jumping'] = self.state['running'] = self.state['falling'] = self.state['fallingfast'] = self.state['landing'] = self.state['walking'] = False
     
     def jump(self):
+        self.state['floorheightnow'] = self.y
         self.state['jumping'] = True
     
     def fall(self):
@@ -129,7 +135,8 @@ class CharacterSprite(sceneobject.SceneObject):
                     '''
                 
             elif event.key == pygame.K_UP:
-                self.jump()
+                if not (self.state['jumping'] or self.state['falling'] or self.state['fallingfast'] or self.state['landing']):
+                    self.jump()
             
             # TODO: Consider adding in Smash Bros. style falling through the floor.
             # elif event.key == pygame.K_DOWN:
@@ -175,8 +182,8 @@ class CharacterSprite(sceneobject.SceneObject):
             # Jumping
             elif self.state['last'] == 'JUMP':
                 # Jumping should loop on the final frame until a predetermined height is reached
-                if self.y > self.jump_height+self.init_pos[1]:
-                    self.actions['JUMP'].curr_step = self.actions['JUMP'].step_duration * (self.actions['JUMP'].num_steps - 2)
+                if self.y > self.state['floorheightnow'] - self.sprite_height - self.jump_height:
+                    self.actions['JUMP'].curr_step = self.actions['JUMP'].step_duration * (self.actions['JUMP'].num_steps - 1)
                 # Once the height is reached, transition to falling
                 else:
                     self.nojump()
@@ -186,7 +193,8 @@ class CharacterSprite(sceneobject.SceneObject):
             elif self.state['last'] == 'FALL':
                 # Falling should loop until one of two things happens:
                 # If the floor has not yet been reached,
-                if self.y < self.init_pos[1]:
+                groundtest = self.terrain.groundtest(self.pos())
+                if not groundtest[0]:
                     # Increase the fall counter
                     self.state['fallcount'] += 1
                     # Check to see whether a predetermined number of loops has been reached
@@ -197,15 +205,16 @@ class CharacterSprite(sceneobject.SceneObject):
                         self.fallfast()
                 # If the floor has been reached or surpassed, move to floor height and transition to landing
                 else:
-                    self.y = self.init_pos[1]
+                    self.y = groundtest[1][1] - self.sprite_height
                     self.nofall()
                     self.land()
             
             # Falling Fast
             elif self.state['last'] == 'FALL_FAST':
                 # If the floor has been reached or surpassed, move to floor height and transition to landing
-                if self.y >= self.init_pos[1]:
-                    self.y = self.init_pos[1]-self.sprite_height
+                groundtest = self.terrain.groundtest(self.pos)
+                if groundtest[0]:
+                    self.y = groundtest[1]-self.sprite_height
                     self.nofallfast()
                     self.land()
 
@@ -231,12 +240,18 @@ class CharacterSprite(sceneobject.SceneObject):
             else:
                 self.state['action'] = 'WALK'
                 self.move((self.walk_step if not self.state['left'] else -self.walk_step, 0))
+                groundtest = self.terrain.groundtest(self.pos())
+                if groundtest[0]:
+                    self.y = groundtest[1][1]-self.sprite_height
         
         # Running
         if self.state['running']:
             # Move forward a preset distance and render the RUN action sprite
             self.state['action'] = 'RUN'
             self.move(((self.walk_step if not self.state['left'] else -self.walk_step)*self.fast_factor, 0))
+            groundtest = self.terrain.groundtest(self.pos)
+            if groundtest[0]:
+                self.y = groundtest[1]-self.sprite_height
             mods = pygame.key.get_mods()
             # If shift is no longer being held, make sure the next frame walking happens
             if not (mods & pygame.KMOD_LSHIFT or mods & pygame.KMOD_RSHIFT):
@@ -261,7 +276,7 @@ class CharacterSprite(sceneobject.SceneObject):
         if self.state['fallingfast']:
             # Move down a little farther than in a standard falling action and render the FALL_FAST action sprite
             self.state['action'] = 'FALL_FAST'
-            self.move((0,self.fall_step*fast_factor))
+            self.move((0,self.fall_step*self.fast_factor))
         
         # Landing
         # This action should only happen after falling
@@ -296,8 +311,10 @@ class CharacterSprite(sceneobject.SceneObject):
                     self.sprite_width,
                     self.sprite_height
                   )
-        #print flip, tmprect
         surface.blit(tmpsprite, self.pos(), tmprect)
+        pygame.draw.rect(surface, (200,10,230), pygame.Rect(self.x,self.y,self.sprite_width,self.sprite_height), 2)
+        for h in range(0, 500, 100):
+            pygame.draw.rect(surface, (10,200,230), pygame.Rect(h+10, h+1,100,100), 2)
     
     
     def reset(self):

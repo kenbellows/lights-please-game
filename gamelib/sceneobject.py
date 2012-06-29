@@ -12,7 +12,7 @@ class SceneObject(pygame.sprite.Sprite):
         else:
             self.image = None
         self.init_pos = self.x, self.y
-        
+        self.terrain = args['terrain']
     def pos(self):
         return (self.x, self.y)
     

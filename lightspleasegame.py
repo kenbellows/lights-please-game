@@ -12,6 +12,7 @@ class LightsPleaseGame(gamelib.game.Game):
                 break
     
     def update(self):
+        print self.hero.pos()
         move_distance_factor = 0.85
         if self.bg:
             if   self.bg.x + self.bg.width > self.bg.image.get_rect().width:
